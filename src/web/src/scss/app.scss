@@ -1,0 +1,69 @@
+@import '../../node_modules/siimple/src/siimple.scss';
+
+.main {
+  margin-top: 40px;
+  margin-bottom: 0px;
+
+  h1,h2,h3,h4,h5,h6 {
+    margin-top: 40px !important;
+  }
+}
+
+.navbar {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  line-height: 50px;
+  .navbar-logo {
+    /* same value as h1, see $headings value in node_modules/siimple/src/_typography.scss*/
+    font-size: 36px;
+    line-height: 50px;
+  }
+  .navbar-link {
+    @extend .btn;
+    text-decoration: none;
+    float: right;
+  }
+}
+
+tr.target {
+  cursor: pointer;
+}
+
+.statusFailed {
+  color: $alert-error;
+  font-weight: bold;
+}
+.statusNotChecked {
+  color: $alert-warning;
+}
+
+.with-hint {
+  margin-bottom: 0px !important;
+}
+
+.delete-link {
+  cursor: pointer;
+  color: $alert-error;
+  &:hover {
+    text-decoration: underline;  
+  }
+}
+
+.btn-danger {
+  @extend .btn;
+
+  color: $white; background-color: $alert-error; border: 0px;
+
+  &-outline
+	{
+		//Include the default button style
+		@include defaultBtn;
+
+		//Outline button style
+		color: $alert-error; background-color: rgba(0,0,0,0); border: 1px solid $alert-error;
+
+		//Outline button hover
+		&:hover { color: $white; background-color: $alert-error; }
+	}
+}

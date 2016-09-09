@@ -1,0 +1,47 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates CloudWatch Logs LogGroup for pingbot.",
+
+  "Parameters": {
+  },
+
+  "Resources": {
+    "DispatcherLogGroup": {
+      "Type" : "AWS::Logs::LogGroup",
+      "Properties" : {
+        "LogGroupName" : "/aws/lambda/pingbot-dispatcher",
+        "RetentionInDays" : 3
+      }
+    },
+    "HealthCheckerLogGroup": {
+      "Type" : "AWS::Logs::LogGroup",
+      "Properties" : {
+        "LogGroupName" : "/aws/lambda/pingbot-health-checker",
+        "RetentionInDays" : 3
+      }
+    },
+    "ResultProcessorLogGroup": {
+      "Type" : "AWS::Logs::LogGroup",
+      "Properties" : {
+        "LogGroupName" : "/aws/lambda/pingbot-result-processor",
+        "RetentionInDays" : 3
+      }
+    },
+    "SlackNotifierLogGroup": {
+      "Type" : "AWS::Logs::LogGroup",
+      "Properties" : {
+        "LogGroupName" : "/aws/lambda/pingbot-slack-notifier",
+        "RetentionInDays" : 3
+      }
+    },
+    "CognitoDeployerLogGroup": {
+      "Type" : "AWS::Logs::LogGroup",
+      "Properties" : {
+        "LogGroupName" : "/aws/lambda/pingbot-cognito-deployer"
+      }
+    }
+  },
+
+  "Outputs": {
+  }
+}

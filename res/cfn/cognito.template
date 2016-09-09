@@ -1,0 +1,276 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates Cognito Identity Pool and its IAM Roles for pingbot.", 
+
+  "Parameters": {
+    "AllowUnauthenticatedIdentities": {
+      "Type": "String",
+      "Description": "TRUE if the identity pool supports unauthenticated logins.",
+      "AllowedValues": [
+        "true",
+        "false"
+      ]
+    },
+    "IdentityPoolName": {
+      "Type": "String",
+      "MinLength": 1,
+      "MaxLength": 128,
+      "AllowedPattern": "^\\w+$",
+      "Description": "The name for the Cognito Identity Pool"
+    },
+    "CognitoIdentityProviders": {
+      "Type": "String",
+      "AllowedPattern": "^$|^\\[(,?\\{\\\"ClientId\\\":\\\".*\\\",\\\"ProviderName\\\":\\\".*\\\"\\})+\\]$",
+      "Default": "",
+      "Description": "a JSON string in the format Array<map>. A list representing a Cognito User Identity Pool and its client ID. E.g [{ProviderName: String, ClientId: String}], where ProviderName is The provider name for a Cognito User Identity Pool. For example, cognito-idp.us-east-1.amazonaws.com/us-east-1_123456789 and ClientId is The client ID for the Cognito User Identity Pool."
+    },
+    "DeveloperProviderName": {
+      "Type": "String",
+      "AllowedPattern": "^$|^[\\w\\.\\-]+$",
+      "Default": "",
+      "Description": "The \"domain\" by which Cognito will refer to your users. This name acts as a placeholder that allows your backend and the Cognito service to communicate about the developer provider. Once you have set a developer provider name, you cannot change it. Please take care in setting this parameter."
+    },
+    "OpenIdConnectProviderARNs": {
+      "Type": "String",
+      "AllowedPattern": "^$|^\\[(,?\\\"arn:aws:iam::\\d{12}:oidc-provider\\/[a-z0-9\\.]+\\\")+\\]$",
+      "Default": "",
+      "Description": "Array<String> A list of OpendID Connect provider ARNs."
+    },
+    "SamlProviderARNs": {
+      "Type": "String",
+      "AllowedPattern": "^$|^\\[(,?\\\"arn:aws:iam::\\d{12}:saml-provider\\/[a-z0-9\\.]+\\\")+\\]$",
+      "Default": "",
+      "Description": "Array<String> An array of Amazon Resource Names (ARNs) of the SAML provider for your identity pool."
+    },
+    "SupportedLoginProviders": {
+      "Type": "String",
+      "AllowedPattern": "^$|^\\{(,?\\\"[a-z0-9\\.]+\\\":\\\".+\\\")+\\}$",
+      "Default": "",
+      "Description": "map<String> Optional key:value pairs mapping provider names to provider app IDs."
+    },
+    "LambdaS3Bucket": {
+      "Type": "String",
+      "Description": "The S3 bucket in which the lambda function code is stored"
+    },
+    "LambdaS3Key": {
+      "Type": "String",
+      "AllowedPattern": ".*\\.zip",
+      "Description": "The S3 key for the lambda function code"
+    }
+  },
+  "Conditions": {
+    "UseUnauthenticatedIdentities": { "Fn::Equals": [{ "Ref": "AllowUnauthenticatedIdentities" }, "true"] },
+    "EMPTY_CognitoIdentityProviders": { "Fn::Equals": [{ "Ref": "CognitoIdentityProviders" }, ""]},
+    "EMPTY_DeveloperProviderName": { "Fn::Equals": [{ "Ref": "DeveloperProviderName" }, ""] },
+    "EMPTY_OpenIdConnectProviderARNs": { "Fn::Equals": [{ "Ref": "OpenIdConnectProviderARNs" }, ""] },
+    "EMPTY_SamlProviderARNs": { "Fn::Equals": [{ "Ref": "OpenIdConnectProviderARNs" }, ""] },
+    "EMPTY_SupportedLoginProviders": { "Fn::Equals": [{ "Ref": "SupportedLoginProviders" }, ""] }
+  },
+  "Resources": {
+    "CognitoDeployerLambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        },
+        "Path": "/pingbot/",
+        "Policies": [
+          {
+            "PolicyName": "DeployerLambdaFunctionPolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "arn:aws:logs:*:*:*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cognito-identity:CreateIdentityPool",
+                    "cognito-identity:DeleteIdentityPool",
+                    "cognito-identity:UpdateIdentityPool",
+                    "cognito-identity:SetIdentityPoolRoles"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "Lambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": { "Ref": "LambdaS3Bucket" },
+          "S3Key": { "Ref": "LambdaS3Key" }
+        },
+        "Description" : "Function to create Cognito identity pool, a handler of CloudFormation Custom Resource.",
+        "FunctionName": "pingbot-cognito-deployer",
+        "Handler": "pingbot-cognito-deployer.handler",
+        "MemorySize": 128,
+        "Role": { "Fn::GetAtt": ["CognitoDeployerLambdaExecutionRole", "Arn"] },
+        "Runtime": "nodejs4.3",
+        "Timeout": 30
+      }
+    },
+    "CognitoIdentityPool": {
+      "Type": "Custom::CognitoIdentityPool",
+      "Properties": {
+        "ServiceToken": { "Fn::GetAtt": ["Lambda", "Arn"] },
+        "Options": {
+          "AllowUnauthenticatedIdentities": { "Ref": "AllowUnauthenticatedIdentities" },
+          "IdentityPoolName": { "Ref": "IdentityPoolName" },
+          "CognitoIdentityProviders": { "Fn::If": ["EMPTY_CognitoIdentityProviders", { "Ref": "AWS::NoValue" }, { "Ref": "CognitoIdentityProviders" }] },
+          "DeveloperProviderName": { "Fn::If": ["EMPTY_DeveloperProviderName", { "Ref": "AWS::NoValue" }, { "Ref": "DeveloperProviderName" }] },
+          "OpenIdConnectProviderARNs": { "Fn::If": ["EMPTY_OpenIdConnectProviderARNs", { "Ref": "AWS::NoValue" }, { "Ref": "OpenIdConnectProviderARNs" }] },
+          "SamlProviderARNs": { "Fn::If": [ "EMPTY_SamlProviderARNs", { "Ref": "AWS::NoValue" }, { "Ref": "SamlProviderARNs" }] },
+          "SupportedLoginProviders": { "Fn::If": ["EMPTY_SupportedLoginProviders", { "Ref": "AWS::NoValue" }, { "Ref": "SupportedLoginProviders" }]}
+        }
+      }
+    },
+    "CognitoAuthenticatedRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": "cognito-identity.amazonaws.com"
+              },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "cognito-identity.amazonaws.com:aud": { "Fn::GetAtt": ["CognitoIdentityPool", "IdentityPoolId"] }
+                },
+                "ForAnyValue:StringLike": {
+                  "cognito-identity.amazonaws.com:amr": "authenticated"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CognitoUnauthenticatedRole": {
+      "Type": "AWS::IAM::Role",
+      "Condition": "UseUnauthenticatedIdentities",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": "cognito-identity.amazonaws.com"
+              },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "cognito-identity.amazonaws.com:aud": { "Fn::GetAtt": ["CognitoIdentityPool", "IdentityPoolId"] }
+                },
+                "ForAnyValue:StringLike": {
+                  "cognito-identity.amazonaws.com:amr": "unauthenticated"
+                }
+              }
+            }
+          ]
+        },
+        "Path": "/pingbot/",
+        "Policies": [
+          {
+            "PolicyName": "CognitoUnAuthenticatedPolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Sid": "CognitoAuthPermission",
+                  "Effect": "Allow",
+                  "Action": [
+                    "mobileanalytics:PutEvents",
+                    "cognito-sync:*"
+                  ],
+                  "Resource": [
+                    "*"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:DeleteItem",
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:Scan"
+                  ],
+                  "Resource": [
+                    { "Fn::Join": [":", ["arn:aws:dynamodb", { "Ref": "AWS::Region" }, { "Ref": "AWS::AccountId" }, "table/pingbot-*"]] }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CognitoIdentityPoolRoles": {
+      "Type": "Custom::CognitoIdentityPoolRoles",
+      "Properties": {
+        "ServiceToken": { "Fn::GetAtt": ["Lambda", "Arn"] },
+        "Options": {
+          "IdentityPoolId": { "Fn::GetAtt": ["CognitoIdentityPool", "IdentityPoolId"] },
+          "Roles": {
+            "authenticated": { "Fn::GetAtt": ["CognitoAuthenticatedRole", "Arn"] },
+            "unauthenticated": { "Fn::If": ["UseUnauthenticatedIdentities", { "Fn::GetAtt": ["CognitoUnauthenticatedRole", "Arn"] }, { "Ref": "AWS::NoValue" }] }
+          }
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "IdentityPoolId": {
+      "Description": "The Identity Pool ID",
+      "Value": {
+        "Fn::GetAtt": ["CognitoIdentityPool", "IdentityPoolId"]
+      }
+    },
+    "CognitoAuthenticatedRoleName": {
+      "Description": "The name of the Cognito Authenticated Role",
+      "Value": {
+        "Ref": "CognitoAuthenticatedRole"
+      }
+    },
+    "CognitoAuthenticatedRoleArn": {
+      "Description": "The ARN of the Cognito Authenticated Role",
+      "Value": {
+        "Fn::GetAtt": ["CognitoAuthenticatedRole", "Arn" ]
+      }
+    },
+    "CognitoUnauthenticatedRoleName": {
+      "Description": "The name of the Cognito Unauthenticated Role",
+      "Value": {
+        "Fn::If": ["UseUnauthenticatedIdentities", { "Ref": "CognitoUnauthenticatedRole" }, ""]
+      }
+    },
+    "CognitoUnauthenticatedRoleArn": {
+      "Description": "The ARN of the Cognito Unauthenticated Role",
+      "Value": {
+        "Fn::If": [ "UseUnauthenticatedIdentities", { "Fn::GetAtt": ["CognitoUnauthenticatedRole", "Arn"] }, ""]
+      }
+    },
+    "Attribution": {
+      "Description": "Attribution",
+      "Value": "This template is based on https://github.com/binoculars/aws-cloudformation-cognito-identity-pool."
+    }
+  }
+}

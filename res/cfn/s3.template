@@ -1,0 +1,60 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates a S3 bucket to serve webapp for pingbot.",
+
+  "Parameters": {
+    "WebAppPermittedIPAddress": {
+      "Description": "The list of the ip address which is allowed to access the pingbot management webapp.",
+      "Type": "String"
+    }
+  },
+
+  "Resources": {
+    "pingbotweb" : {
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+        "WebsiteConfiguration": {
+          "IndexDocument" : "index.html",
+          "ErrorDocument" : "error.html"
+        }
+      }
+    },
+    "BucketPolicy" : {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : {"Ref" : "pingbotweb"},
+        "PolicyDocument": {
+          "Id" : "AllowControlFromPermittedIPAddresses",
+          "Version": "2012-10-17",
+          "Statement":[{
+            "Action": ["s3:GetObject"],
+            "Effect": "Allow",
+            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref": "pingbotweb" } , "/*" ]] },
+            "Principal": {
+               "AWS" : "*"
+            },
+            "Condition":{
+              "IpAddress": {
+                "aws:SourceIp": { "Ref": "WebAppPermittedIPAddress" }
+              }
+            }
+          }]
+        }
+      }
+    }
+  },
+
+  "Outputs" : {
+    "BucketName": {
+      "Value": { "Ref": "pingbotweb" }
+    },
+    "WebsiteURL" : {
+      "Value": { "Fn::GetAtt": [ "pingbotweb", "WebsiteURL" ] },
+      "Description": "URL for pingbot-web hosted on S3"
+    },
+    "S3BucketSecureURL" : { 
+      "Value": { "Fn::Join": ["", [ "https://", { "Fn::GetAtt" : [ "pingbotweb", "DomainName" ] }]] },
+      "Description": "Name of S3 bucket to hold website content"
+    }
+  }
+}

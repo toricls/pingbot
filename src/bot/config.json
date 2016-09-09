@@ -1,0 +1,14 @@
+{
+    "botName": "pingbot",
+    "botVersion": "0.0.1",
+    "dynamoDb": {
+        "suffixTargetsTable": "-targets",
+        "suffixResultsTable": "-results",
+        "suffixHistoriesTable": "-histories"
+    },
+    "lambda": {
+        "suffixHelathCheckFunction": "-health-checker",
+        "suffixSlackNotificationFunction": "-slack-notifier",
+        "suffixEmailNotificationFunction": "-email-notifier"
+    }
+}

@@ -1,0 +1,157 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates DynamoDB tables for pingbot.",
+
+  "Parameters": {
+    "TargetsTableKeyName": {
+      "Description": "TargetsTable's HashType PrimaryKey Name",
+      "Type": "String",
+      "Default": "uuid",
+      "AllowedPattern": "[a-zA-Z0-9]*",
+      "MinLength": "1",
+      "MaxLength": "2048",
+      "ConstraintDescription": "must contain only alphanumberic characters"
+    },
+    "TargetsTableKeyType": {
+      "Description": "TargetsTable's HashType PrimaryKey Type",
+      "Type": "String",
+      "Default": "S",
+      "AllowedPattern": "[S]",
+      "MinLength": "1",
+      "MaxLength": "1",
+      "ConstraintDescription": "must be S"
+    },
+    "TargetsTableReadCapacityUnits": {
+      "Description": "TargetsTable's provisioned read throughput",
+      "Type": "Number",
+      "Default": "5",
+      "MinValue": "1",
+      "MaxValue": "10000",
+      "ConstraintDescription": "must be between 1 and 10000"
+    },
+    "TargetsTableWriteCapacityUnits": {
+      "Description": "TargetsTable's provisioned write throughput",
+      "Type": "Number",
+      "Default": "10",
+      "MinValue": "1",
+      "MaxValue": "10000",
+      "ConstraintDescription": "must be between 1 and 10000"
+    },
+    "ResultsTableKeyName": {
+      "Description": "ResultsTable's HashType PrimaryKey Name",
+      "Type": "String",
+      "Default": "uuid",
+      "AllowedPattern": "[a-zA-Z0-9]*",
+      "MinLength": "1",
+      "MaxLength": "2048",
+      "ConstraintDescription": "must contain only alphanumberic characters"
+    },
+    "ResultsTableKeyType": {
+      "Description": "ResultsTable's HashType PrimaryKey Type",
+      "Type": "String",
+      "Default": "S",
+      "AllowedPattern": "[S]",
+      "MinLength": "1",
+      "MaxLength": "1",
+      "ConstraintDescription": "must be S"
+    },
+    "ResultsTableReadCapacityUnits": {
+      "Description": "ResultsTable's provisioned read throughput",
+      "Type": "Number",
+      "Default": "5",
+      "MinValue": "1",
+      "MaxValue": "10000",
+      "ConstraintDescription": "must be between 1 and 10000"
+    },
+    "ResultsTableWriteCapacityUnits": {
+      "Description": "ResultsTable's provisioned write throughput",
+      "Type": "Number",
+      "Default": "10",
+      "MinValue": "1",
+      "MaxValue": "10000",
+      "ConstraintDescription": "must be between 1 and 10000"
+    }
+  },
+
+  "Resources": {
+    "PingbotTargets": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName" : "pingbot-targets",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": {
+              "Ref": "TargetsTableKeyName"
+            },
+            "AttributeType": {
+              "Ref": "TargetsTableKeyType"
+            }
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": {
+              "Ref": "TargetsTableKeyName"
+            },
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": {
+            "Ref": "TargetsTableReadCapacityUnits"
+          },
+          "WriteCapacityUnits": {
+            "Ref": "TargetsTableWriteCapacityUnits"
+          }
+        }
+      }
+    },
+    "PingbotResults": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName" : "pingbot-results",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": {
+              "Ref": "ResultsTableKeyName"
+            },
+            "AttributeType": {
+              "Ref": "ResultsTableKeyType"
+            }
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": {
+              "Ref": "ResultsTableKeyName"
+            },
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": {
+            "Ref": "ResultsTableReadCapacityUnits"
+          },
+          "WriteCapacityUnits": {
+            "Ref": "ResultsTableWriteCapacityUnits"
+          }
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      }
+    }
+  },
+
+  "Outputs": {
+    "TargetsTableName": {
+      "Value": { "Ref": "PingbotTargets" }
+    },
+    "ResultsTableName": {
+      "Value": { "Ref": "PingbotResults" }
+    },
+    "ResultsTableStream": {
+      "Value": { "Fn::GetAtt": ["PingbotResults", "StreamArn"] }
+    }
+  }
+}

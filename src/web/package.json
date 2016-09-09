@@ -1,0 +1,56 @@
+{
+  "name": "pingbot",
+  "version": "0.0.1",
+  "description": "A GUI frontend for pingbot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --progress --history-api-fallback --inline",
+    "build": "webpack -p --progress",
+    "dist": "aws s3 sync ./dist s3://$S3_BUCKET_NAME --delete --exclude '.*'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toricls/pingbot.git"
+  },
+  "keywords": [
+    "serverless",
+    "react",
+    "website health check",
+    "monitoring"
+  ],
+  "author": "toricls",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/toricls/pingbot/issues"
+  },
+  "homepage": "https://github.com/toricls/pingbot",
+  "readme": "README.md",
+  "devDependencies": {
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-react": "^6.11.1",
+    "css-loader": "^0.24.0",
+    "eslint": "^3.4.0",
+    "eslint-plugin-react": "^6.2.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.9.0",
+    "html-webpack-plugin": "^2.22.0",
+    "node-sass": "^3.8.0",
+    "sass-loader": "^4.0.0",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.15.0",
+    "webpack-merge": "^0.14.1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.5.3",
+    "boron": "^0.2.3",
+    "copy-webpack-plugin": "^3.0.1",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "siimple": "^1.3.6"
+  }
+}

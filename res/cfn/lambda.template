@@ -1,0 +1,122 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates Lambda functions for pingbot.",
+
+  "Parameters": {
+    "LambdaRoleArn": {
+      "Description": "The ARN of the Lambda function IAM role.",
+      "Type": "String"
+    },
+    "ArchiveBucketName": {
+      "Description": "The name of the S3 bucket name where the lambda faunctions are located.",
+      "Type": "String"
+    },
+    "DynamoDBResultTableStreamArn": {
+      "Description": "The ARN of the DynamoDB pingbot-results table's stream.",
+      "Type": "String"
+    }
+  },
+
+  "Resources": {
+    "PingbotLambdaDispatcher": {
+      "Type" : "AWS::Lambda::Function",
+      "Properties" : {
+        "Code" : {
+          "S3Bucket" : { "Ref": "ArchiveBucketName" },
+          "S3Key" : "lambda/pingbot-dispatcher.zip"
+        },
+        "Description" : "Function to fetch check targets from DynamoDB table and invoke the health check function",
+        "FunctionName": "pingbot-dispatcher",
+        "MemorySize": 128,
+        "Handler": "pingbot-dispatcher.handler",
+        "Role" : {"Ref" : "LambdaRoleArn" },
+        "Runtime" : "nodejs4.3",
+        "Timeout": 60
+      }
+    },
+    "PingbotLambdaHealthChecker": {
+      "Type" : "AWS::Lambda::Function",
+      "Properties" : {
+        "Code" : {
+          "S3Bucket" : { "Ref": "ArchiveBucketName" },
+          "S3Key" : "lambda/pingbot-health-checker.zip"
+        },
+        "Description" : "Function to make an HTTP/HTTPS request and save result to DynamoDB table",
+        "FunctionName": "pingbot-health-checker",
+        "MemorySize": 128,
+        "Handler": "pingbot-health-checker.handler",
+        "Role" : {"Ref" : "LambdaRoleArn" },
+        "Runtime" : "nodejs4.3",
+        "Timeout": 55
+      }
+    },
+    "PingbotLambdaResultProcessor": {
+      "Type" : "AWS::Lambda::Function",
+      "Properties" : {
+        "Code" : {
+          "S3Bucket" : { "Ref": "ArchiveBucketName" },
+          "S3Key" : "lambda/pingbot-result-processor.zip"
+        },
+        "Description" : "Function to handle the check status changes (invokes notifiers, persists status history)",
+        "FunctionName": "pingbot-result-processor",
+        "MemorySize": 128,
+        "Handler": "pingbot-result-processor.handler",
+        "Role" : {"Ref" : "LambdaRoleArn" },
+        "Runtime" : "nodejs4.3",
+        "Timeout": 50
+      }
+    },
+    "PingbotLambdaSlackNotifier": {
+      "Type" : "AWS::Lambda::Function",
+      "Properties" : {
+        "Code" : {
+          "S3Bucket" : { "Ref": "ArchiveBucketName" },
+          "S3Key" : "lambda/pingbot-slack-notifier.zip"
+        },
+        "Description" : "Function to notify the check status changes",
+        "FunctionName": "pingbot-slack-notifier",
+        "MemorySize": 128,
+        "Handler": "pingbot-slack-notifier.handler",
+        "Role" : {"Ref" : "LambdaRoleArn" },
+        "Runtime" : "nodejs4.3",
+        "Timeout": 50
+      }
+    },
+    "ResultProcessorEventSourceMapping": {
+      "Type" : "AWS::Lambda::EventSourceMapping",
+      "Properties" : {
+        "BatchSize" : 100,
+        "EventSourceArn" : { "Ref": "DynamoDBResultTableStreamArn" },
+        "FunctionName" : { "Fn::GetAtt": [ "PingbotLambdaResultProcessor", "Arn" ] },
+        "StartingPosition" : "TRIM_HORIZON"
+      }
+    }
+  },
+
+  "Outputs": {
+    "PingbotLambdaDispatcherArn": {
+      "Value": { "Fn::GetAtt": ["PingbotLambdaDispatcher", "Arn"] }
+    },
+    "PingbotLambdaDispatcherName": {
+      "Value": { "Ref": "PingbotLambdaDispatcher" }
+    },
+    "PingbotLambdaHealthCheckerArn": {
+      "Value": { "Fn::GetAtt": ["PingbotLambdaHealthChecker", "Arn"] }
+    },
+    "PingbotLambdaHealthCheckerName": {
+      "Value": { "Ref": "PingbotLambdaHealthChecker" }
+    },
+    "PingbotLambdaResultProcessorArn": {
+      "Value": { "Fn::GetAtt": ["PingbotLambdaResultProcessor", "Arn"] }
+    },
+    "PingbotLambdaResultProcessorName": {
+      "Value": { "Ref": "PingbotLambdaResultProcessor" }
+    },
+    "PingbotLambdaSlackNotifierArn": {
+      "Value": { "Fn::GetAtt": ["PingbotLambdaSlackNotifier", "Arn"] }
+    },
+    "PingbotLambdaSlackNotifierName": {
+      "Value": { "Ref": "PingbotLambdaSlackNotifier" }
+    }
+  }
+}

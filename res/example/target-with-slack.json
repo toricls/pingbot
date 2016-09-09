@@ -1,0 +1,10 @@
+{
+    "uuid": {"S": "bcfe0734-324d-460d-a70c-25e97dfa57a7"},
+    "displayName": {"S": "Pingbot GitHub with Slack"},
+    "protocol": {"S": "https"},
+    "host": {"S": "github.com"},
+    "port": {"N": "443"},
+    "path": {"S": "/toricls/pingbot"},
+    "slackChannel": {"S": "YOUR-CHANNEL-NAME-WITHOUT-HASH"},
+    "slackWebhook": {"S": "YOUR-SLACK-INCOMING-WEBHOOK-URL"}
+}

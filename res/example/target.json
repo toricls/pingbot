@@ -1,0 +1,8 @@
+{
+    "uuid": {"S": "fbb0c886-cc44-4302-8776-41f5606d9284"},
+    "displayName": {"S": "Pingbot GitHub"},
+    "protocol": {"S": "https"},
+    "host": {"S": "github.com"},
+    "port": {"N": "443"},
+    "path": {"S": "/toricls/pingbot"}
+}

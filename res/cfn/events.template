@@ -1,0 +1,48 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates CloudWatch Events and Trigger for pingbot.",
+
+  "Parameters": {
+    "LambdaDispatcherArn": {
+      "Description": "The ARN of the Lambda dispatcher function.",
+      "Type": "String"
+    },
+    "LambdaDispatcherFunctionName": {
+      "Description": "The name of the Lambda dispatcher function.",
+      "Default": "",
+      "Type": "String"
+    }
+  },
+
+  "Resources": {
+    "PingbotSchedule": {
+      "Type" : "AWS::Events::Rule",
+      "Properties" : {
+        "Description" : "Once in a minute",
+        "Name" : "Pingbot-Schedule",
+        "ScheduleExpression" : "rate(1 minute)",
+        "State" : "ENABLED",
+        "Targets" : [{
+          "Arn": { "Ref": "LambdaDispatcherArn" },
+          "Id": { "Ref": "LambdaDispatcherFunctionName" }
+        }]
+      }
+    },
+    "PermissionForEventsToInvokeLambda": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": { "Ref": "LambdaDispatcherFunctionName" },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": { "Fn::GetAtt": ["PingbotSchedule", "Arn"] }
+      }
+    }
+  },
+
+  "Outputs": {
+    "PingbotScheduleName": {
+      "Description": "The name of CloudWatch event",
+      "Value": { "Ref": "PingbotSchedule" }
+    }
+  }
+}

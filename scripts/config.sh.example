@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Copy this file as config.sh and change values below
+
+## The AWS region you want to deploy
+export AWS_DEFAULT_REGION=us-east-1
+
+## Your S3 bucket name which you created at this step: https://github.com/toricls/pingbot/blob/master/docs/setup.md#create-a-s3-bucket-to-store-deployment-assets
+export S3_PINGBOT_RESOURCE_BUCKET=${YOUR-BUCKET-NAME}
+
+## Your global IP address to permit accessing to pingbot web app
+export WEBAPP_PERMITTED_IP_ADDRESS=${YOUR.IPADDRESS.WITH.CIDR/32}

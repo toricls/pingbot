@@ -1,0 +1,112 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates a new pingbot environment. This process takes about 10 minutes.",
+
+  "Parameters": {
+    "TemplateBucketName": {
+      "Description": "The name of the S3 bucket where the template files are located.",
+      "Type": "String",
+      "MinLength": "1"
+    },
+    "WebAppPermittedIPAddress": {
+      "Description": "The ip address which allow accessing to the pingbot management webapp.",
+      "Type": "String"
+    }
+  },
+
+  "Resources": {
+    "iam": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": ["", ["https://s3-", { "Ref": "AWS::Region" }, ".amazonaws.com/", { "Ref": "TemplateBucketName" }, "/cfn/iam.template"]] }
+      }
+    },
+    "dynamodb": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": ["", ["https://s3-", { "Ref": "AWS::Region" }, ".amazonaws.com/", { "Ref": "TemplateBucketName" }, "/cfn/dynamodb.template"]] },
+        "Parameters": {
+          "TargetsTableKeyName": "uuid",
+          "TargetsTableKeyType": "S",
+          "TargetsTableReadCapacityUnits": 1,
+          "TargetsTableWriteCapacityUnits": 1,
+          "ResultsTableKeyName": "uuid",
+          "ResultsTableKeyType": "S",
+          "ResultsTableReadCapacityUnits": 1,
+          "ResultsTableWriteCapacityUnits": 1
+        }
+      }
+    },
+    "lambda": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": ["", ["https://s3-", { "Ref": "AWS::Region" }, ".amazonaws.com/", { "Ref": "TemplateBucketName" }, "/cfn/lambda.template"]] },
+        "Parameters": {
+          "LambdaRoleArn": { "Fn::GetAtt": [ "iam", "Outputs.PingbotLambdaRole" ] },
+          "ArchiveBucketName": { "Ref": "TemplateBucketName" },
+          "DynamoDBResultTableStreamArn": { "Fn::GetAtt": [ "dynamodb", "Outputs.ResultsTableStream" ] }
+        }
+      }
+    },
+    "events": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": ["", ["https://s3-", { "Ref": "AWS::Region" }, ".amazonaws.com/", { "Ref": "TemplateBucketName" }, "/cfn/events.template"]] },
+        "Parameters": {
+          "LambdaDispatcherArn": { "Fn::GetAtt": [ "lambda", "Outputs.PingbotLambdaDispatcherArn" ] },
+          "LambdaDispatcherFunctionName": { "Fn::GetAtt": [ "lambda", "Outputs.PingbotLambdaDispatcherName" ] }
+        }
+      }
+    },
+    "logs": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": ["", ["https://s3-", { "Ref": "AWS::Region" }, ".amazonaws.com/", { "Ref": "TemplateBucketName" }, "/cfn/logs.template"]] }
+      }
+    },
+    "s3": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": ["", ["https://s3-", { "Ref": "AWS::Region" }, ".amazonaws.com/", { "Ref": "TemplateBucketName" }, "/cfn/s3.template"]] },
+        "Parameters": {
+          "WebAppPermittedIPAddress": { "Ref": "WebAppPermittedIPAddress" }
+        }
+      }
+    },
+    "cognito": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": { "Fn::Join": ["", ["https://s3-", { "Ref": "AWS::Region" }, ".amazonaws.com/", { "Ref": "TemplateBucketName" }, "/cfn/cognito.template"]] },
+        "Parameters": {
+          "AllowUnauthenticatedIdentities": "true",
+          "IdentityPoolName": "pingbotWeb",
+          "LambdaS3Bucket": { "Ref": "TemplateBucketName" },
+          "LambdaS3Key": "cognito/pingbot-cognito-deployer.zip"
+        }
+      }
+    }
+  },
+
+  "Outputs": {
+    "PingbotTargetsTableName": {
+      "Description": "The name of DynamoDB table to store monitoring target.",
+      "Value": { "Fn::GetAtt": [ "dynamodb", "Outputs.TargetsTableName" ] }
+    },
+    "PingbotWebS3BucketName": {
+      "Description": "The name of S3 bucket to hold website content.",
+      "Value": { "Fn::GetAtt": [ "s3", "Outputs.BucketName" ] }
+    },
+    "PingbotWebS3WebsiteUrl": {
+      "Description": "The URL for pingbot-web hosted on S3.",
+      "Value": { "Fn::GetAtt": [ "s3", "Outputs.WebsiteURL" ] }
+    },
+    "CognitoIdentityPoolId": {
+      "Description": "The Id of Cognito Identity Pool created via this stack.",
+      "Value": { "Fn::GetAtt": ["cognito", "Outputs.IdentityPoolId"] }
+    },
+    "ScheduledEventName": {
+      "Description": "The name of CloudWatch event.",
+      "Value": { "Fn::GetAtt": ["events", "Outputs.PingbotScheduleName"] }
+    }
+  }
+}

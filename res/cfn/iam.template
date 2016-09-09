@@ -1,0 +1,91 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates IAM Roles for pingbot.",
+
+  "Resources": {
+    "PingbotLambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/pingbot/",
+        "Policies": [
+          {
+            "PolicyName": "LambdaFunctionPolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Sid": "AllFunctionsPermission",
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    "arn:aws:logs:*:*:*"
+                  ]
+                },
+                {
+                  "Sid": "LambdaPermission",
+                  "Effect": "Allow",
+                  "Action": [
+                    "lambda:InvokeFunction"
+                  ],
+                  "Resource": [
+                    { "Fn::Join": [":", ["arn:aws:lambda", { "Ref": "AWS::Region" }, { "Ref": "AWS::AccountId" }, "function", "pingbot-health-checker"]] },
+                    { "Fn::Join": [":", ["arn:aws:lambda", { "Ref": "AWS::Region" }, { "Ref": "AWS::AccountId" }, "function", "pingbot-slack-notifier"]] }
+                  ]
+                },
+                {
+                  "Sid": "DynamoDBPermission",
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:Scan"
+                  ],
+                  "Resource": [
+                    { "Fn::Join": [":", ["arn:aws:dynamodb", { "Ref": "AWS::Region" }, { "Ref": "AWS::AccountId" }, "table/pingbot-*"]] }
+                  ]
+                },
+                {
+                  "Sid": "DynamoDBStreamsPermission",
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:DescribeStream",
+                    "dynamodb:GetRecords",
+                    "dynamodb:GetShardIterator",
+                    "dynamodb:ListStreams"
+                  ],
+                  "Resource": [
+                    { "Fn::Join": [":", ["arn:aws:dynamodb", { "Ref": "AWS::Region" }, { "Ref": "AWS::AccountId" }, "table/pingbot-results/stream/*"]] }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+
+  "Outputs": {
+    "PingbotLambdaRole": {
+      "Value": { "Fn::GetAtt": ["PingbotLambdaRole", "Arn"] }
+    }
+  }
+}
