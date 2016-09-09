@@ -51,10 +51,6 @@
     "WebsiteURL" : {
       "Value": { "Fn::GetAtt": [ "pingbotweb", "WebsiteURL" ] },
       "Description": "URL for pingbot-web hosted on S3"
-    },
-    "S3BucketSecureURL" : { 
-      "Value": { "Fn::Join": ["", [ "https://", { "Fn::GetAtt" : [ "pingbotweb", "DomainName" ] }]] },
-      "Description": "Name of S3 bucket to hold website content"
     }
   }
 }
