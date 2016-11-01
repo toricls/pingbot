@@ -89,6 +89,26 @@ $ aws dynamodb put-item \
     --return-consumed-capacity TOTAL
 ```
 
+### (Optional) Configure your web-server to not log requests by pingbot's User-Agent
+
+Since we recommend you to create a specific health check path (like '/healthcheck') and disable logging on that path, follow this section if you cannot create such paths on your products.
+
+---
+
+pingbot makes all requests with following UserAgent format.
+
+`pingbot/v{PINGBOT_VERSION} uuid:{TARGET_UUID}`
+
+You can tell your web-server to not log these requests through your web-server's configuration.
+
+#### e.g. Apache
+Put something like following lines into your apache config or .htaccess, for example.
+```
+SetEnvIf User-Agent "pingbot" nolog
+
+CustomLog logs/access_log combined env=!nolog
+```
+
 ## Update apps
 
 ```
