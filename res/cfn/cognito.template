@@ -100,7 +100,8 @@
                     "cognito-identity:CreateIdentityPool",
                     "cognito-identity:DeleteIdentityPool",
                     "cognito-identity:UpdateIdentityPool",
-                    "cognito-identity:SetIdentityPoolRoles"
+                    "cognito-identity:SetIdentityPoolRoles",
+                    "iam:PassRole"
                   ],
                   "Resource": "*"
                 }
