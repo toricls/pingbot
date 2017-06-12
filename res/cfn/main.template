@@ -8,6 +8,11 @@
       "Type": "String",
       "MinLength": "1"
     },
+    "DeployTimestamp": {
+      "Description": "The timestamp of the archives of the lambda functions.",
+      "Type": "String",
+      "MinLength": "1"
+    },
     "WebAppPermittedIPAddress": {
       "Description": "The ip address which allow accessing to the pingbot management webapp.",
       "Type": "String"
@@ -44,6 +49,7 @@
         "Parameters": {
           "LambdaRoleArn": { "Fn::GetAtt": [ "iam", "Outputs.PingbotLambdaRole" ] },
           "ArchiveBucketName": { "Ref": "TemplateBucketName" },
+          "VersionNumber": { "Ref": "DeployTimestamp" },
           "DynamoDBResultTableStreamArn": { "Fn::GetAtt": [ "dynamodb", "Outputs.ResultsTableStream" ] }
         }
       }
@@ -81,7 +87,7 @@
           "AllowUnauthenticatedIdentities": "true",
           "IdentityPoolName": "pingbotWeb",
           "LambdaS3Bucket": { "Ref": "TemplateBucketName" },
-          "LambdaS3Key": "cognito/pingbot-cognito-deployer.zip"
+          "LambdaS3Key": { "Fn::Join" : [ "/", [ { "Ref": "DeployTimestamp" }, "cognito", "pingbot-cognito-deployer.zip" ] ] }
         }
       }
     }

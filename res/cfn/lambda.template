@@ -11,6 +11,10 @@
       "Description": "The name of the S3 bucket name where the lambda faunctions are located.",
       "Type": "String"
     },
+    "VersionNumber": {
+      "Description": "The version number of the lambda faunctions.",
+      "Type": "String"
+    },
     "DynamoDBResultTableStreamArn": {
       "Description": "The ARN of the DynamoDB pingbot-results table's stream.",
       "Type": "String"
@@ -23,7 +27,7 @@
       "Properties" : {
         "Code" : {
           "S3Bucket" : { "Ref": "ArchiveBucketName" },
-          "S3Key" : "lambda/pingbot-dispatcher.zip"
+          "S3Key" : { "Fn::Join" : [ "/", [ { "Ref": "VersionNumber" }, "lambda", "pingbot-dispatcher.zip" ] ] }
         },
         "Description" : "Function to fetch check targets from DynamoDB table and invoke the health check function",
         "FunctionName": "pingbot-dispatcher",
@@ -39,7 +43,7 @@
       "Properties" : {
         "Code" : {
           "S3Bucket" : { "Ref": "ArchiveBucketName" },
-          "S3Key" : "lambda/pingbot-health-checker.zip"
+          "S3Key" : { "Fn::Join" : [ "/", [ { "Ref": "VersionNumber" }, "lambda", "pingbot-health-checker.zip" ] ] }
         },
         "Description" : "Function to make an HTTP/HTTPS request and save result to DynamoDB table",
         "FunctionName": "pingbot-health-checker",
@@ -55,7 +59,7 @@
       "Properties" : {
         "Code" : {
           "S3Bucket" : { "Ref": "ArchiveBucketName" },
-          "S3Key" : "lambda/pingbot-result-processor.zip"
+          "S3Key" : { "Fn::Join" : [ "/", [ { "Ref": "VersionNumber" }, "lambda", "pingbot-result-processor.zip" ] ] }
         },
         "Description" : "Function to handle the check status changes (invokes notifiers, persists status history)",
         "FunctionName": "pingbot-result-processor",
@@ -71,7 +75,7 @@
       "Properties" : {
         "Code" : {
           "S3Bucket" : { "Ref": "ArchiveBucketName" },
-          "S3Key" : "lambda/pingbot-slack-notifier.zip"
+          "S3Key" : { "Fn::Join" : [ "/", [ { "Ref": "VersionNumber" }, "lambda", "pingbot-slack-notifier.zip" ] ] }
         },
         "Description" : "Function to notify the check status changes",
         "FunctionName": "pingbot-slack-notifier",
