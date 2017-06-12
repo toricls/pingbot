@@ -32,6 +32,7 @@ aws cloudformation update-stack \
 
 ## WAIT FOR COMPLETION
 echo 'Waiting for the stack to be updated, this may take a few minutes...'
+echo "See the progress at: https://$AWS_DEFAULT_REGION.console.aws.amazon.com/cloudformation/home?region=$AWS_DEFAULT_REGION#/stacks"
 aws cloudformation wait stack-update-complete --stack-name $STACK_NAME
 echo 'Done'
 
@@ -41,4 +42,6 @@ $SCRIPTS_DIR/lib/deploy-web.sh
 echo 'Done'
 
 echo ''
+S3_URL=$( aws cloudformation describe-stacks --region $AWS_DEFAULT_REGION --stack-name $STACK_NAME --query 'Stacks[*].Outputs[?OutputKey==`PingbotWebS3WebsiteUrl`].OutputValue' --output text )
 echo 'pingbot was updated!'
+echo 'Check the web app at: '$S3_URL

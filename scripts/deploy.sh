@@ -33,7 +33,7 @@ aws cloudformation create-stack \
 ## WAIT FOR COMPLETION
 set +e
 echo 'Waiting for the stack to be created, this may take a few minutes...'
-echo 'You can see the progress at the CloudFormation Management Console.'
+echo "See the progress at: https://$AWS_DEFAULT_REGION.console.aws.amazon.com/cloudformation/home?region=$AWS_DEFAULT_REGION#/stacks"
 aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
 RESULT=$(echo $?)
 set -e
