@@ -13,7 +13,9 @@ if [ -f "./scripts/config.sh" ]; then
 fi
 
 $SCRIPTS_DIR/lib/check-variables.sh
-$SCRIPTS_DIR/lib/upload.sh
+
+export TIMESTAMP=$(date '+%Y%m%d%H%M%S')
+$SCRIPTS_DIR/lib/upload.sh $TIMESTAMP
 
 export STACK_NAME=pingbot
 
@@ -24,6 +26,7 @@ aws cloudformation update-stack \
     --region $AWS_DEFAULT_REGION \
     --template-url https://s3-$AWS_DEFAULT_REGION.amazonaws.com/$S3_PINGBOT_RESOURCE_BUCKET/cfn/main.template \
     --parameters ParameterKey=TemplateBucketName,ParameterValue=$S3_PINGBOT_RESOURCE_BUCKET \
+                 ParameterKey=DeployTimestamp,ParameterValue=$TIMESTAMP \
                  ParameterKey=WebAppPermittedIPAddress,ParameterValue=$WEBAPP_PERMITTED_IP_ADDRESS \
     --capabilities CAPABILITY_IAM
 
