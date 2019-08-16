@@ -5,7 +5,7 @@ This setup instruction is dedicated for OS X. You can probably follow these step
 ## Prerequisites
 
 - The latest version of the [AWS CLI](https://aws.amazon.com/cli/) to create AWS resources.
-- [Node.js](https://nodejs.org/) v4.3 or later to build web-app.
+- [Node.js](https://nodejs.org/) v8.10 or later to build web-app.
 
 We assume you are using an IAM Role/User with `AdministratorAccess`.
 
