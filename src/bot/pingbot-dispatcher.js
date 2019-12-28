@@ -40,7 +40,7 @@ const dispatch = (event, callback) => {
                                 host: target.host,
                                 path: target.path,
                                 port: target.port,
-                                method: 'HEAD',
+                                method: target.method || 'HEAD',
                                 headers: {
                                     'User-Agent': botConfig.botName + '/v' + botConfig.botVersion + ' uuid:' + target.uuid,
                                     'Host': target.host
