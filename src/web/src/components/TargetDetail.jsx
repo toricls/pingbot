@@ -36,6 +36,7 @@ export default class TargetDetail extends React.Component {
                     host: '', 
                     port: 80, 
                     path: '/', 
+                    method: 'HEAD',
                     slackChannel: '', 
                     slackWebhook: ''
                 }
@@ -166,6 +167,10 @@ export default class TargetDetail extends React.Component {
             result = (length <= 300 && length > 0)
             data.path = value
             break
+        case 'method':
+            result = (['HEAD', 'GET'].indexOf(value) > -1)
+            data.method = value
+            break
         case 'slackChannel':
             // Name should be lowercase, with no space
             length = value.trim().length
@@ -200,6 +205,9 @@ export default class TargetDetail extends React.Component {
             break
         case 'path':
             style.path = result ? styles.valid : styles.invalid
+            break
+        case 'method':
+            style.method = result ? styles.valid : styles.invalid
             break
         case 'slackChannel':
             style.slackChannel = result ? styles.valid : styles.invalid
@@ -294,6 +302,17 @@ export default class TargetDetail extends React.Component {
                         value={this.state.data.path}
                         onChange={this.handleChange.bind(this)}
                         style={this.state.style.path} />
+                    <select
+                        ref="method"
+                        className="form-select"
+                        name="method"
+                        required
+                        value={this.state.data.method}
+                        onChange={this.handleChange.bind(this)}
+                        style={this.state.style.method}>
+                        <option>HEAD</option>
+                        <option>GET</option>
+                    </select>
                     <input
                         type="text"
                         className="form-input"
