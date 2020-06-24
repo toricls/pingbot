@@ -34,7 +34,7 @@
         "MemorySize": 128,
         "Handler": "pingbot-dispatcher.handler",
         "Role" : {"Ref" : "LambdaRoleArn" },
-        "Runtime" : "nodejs8.10",
+        "Runtime" : "nodejs12.x",
         "Timeout": 60
       }
     },
@@ -50,7 +50,7 @@
         "MemorySize": 128,
         "Handler": "pingbot-health-checker.handler",
         "Role" : {"Ref" : "LambdaRoleArn" },
-        "Runtime" : "nodejs8.10",
+        "Runtime" : "nodejs12.x",
         "Timeout": 55
       }
     },
@@ -66,7 +66,7 @@
         "MemorySize": 128,
         "Handler": "pingbot-result-processor.handler",
         "Role" : {"Ref" : "LambdaRoleArn" },
-        "Runtime" : "nodejs8.10",
+        "Runtime" : "nodejs12.x",
         "Timeout": 50
       }
     },
@@ -82,7 +82,7 @@
         "MemorySize": 128,
         "Handler": "pingbot-slack-notifier.handler",
         "Role" : {"Ref" : "LambdaRoleArn" },
-        "Runtime" : "nodejs8.10",
+        "Runtime" : "nodejs12.x",
         "Timeout": 50
       }
     },

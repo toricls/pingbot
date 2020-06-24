@@ -5,7 +5,7 @@ This setup instruction is dedicated for OS X. You can probably follow these step
 ## Prerequisites
 
 - The latest version of the [AWS CLI](https://aws.amazon.com/cli/) to create AWS resources.
-- [Node.js](https://nodejs.org/) v8.10 or later to build web-app.
+- [Node.js](https://nodejs.org/) v12.x or later to build web-app.
 
 We assume you are using an IAM Role/User with `AdministratorAccess`.
 
@@ -32,7 +32,7 @@ We use [some CloudFormation templates and shell scripts](../res/) to setup the a
 
 ### Before setup
 
-After clone this repository into your local, set an AWS credential to use AWS API inside setup scripts. 
+After clone this repository into your local, set an AWS credential to use AWS API inside setup scripts.
 
 ```
 $ cd /path/to/repos
@@ -64,7 +64,7 @@ $ vim scripts/config.sh
 $ ./scripts/deploy.sh
 
 # You will see messages like follows when the deploy script is completed.
-# 
+#
 # pingbot was deployed!
 # Check the web app at: http://pingbot-s3-xxxxxxxxxxxx-pingbotweb-xxxxxxxxxxxx.s3-website-xxxxxxxx.amazonaws.com
 ```

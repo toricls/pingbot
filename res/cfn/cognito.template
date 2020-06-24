@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Creates Cognito Identity Pool and its IAM Roles for pingbot.", 
+  "Description": "Creates Cognito Identity Pool and its IAM Roles for pingbot.",
 
   "Parameters": {
     "AllowUnauthenticatedIdentities": {
@@ -123,7 +123,7 @@
         "Handler": "pingbot-cognito-deployer.handler",
         "MemorySize": 128,
         "Role": { "Fn::GetAtt": ["CognitoDeployerLambdaExecutionRole", "Arn"] },
-        "Runtime": "nodejs8.10",
+        "Runtime": "nodejs12.x",
         "Timeout": 30
       }
     },
