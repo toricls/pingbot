@@ -29,18 +29,17 @@ export default class TargetDetail extends React.Component {
     constructor(props) {
         super(props)
         this.state = {}
-        var propData = this.props.data
-                || {
-                    displayName: '',
-                    protocol: 'http',
-                    host: '',
-                    port: 80,
-                    path: '/',
-                    group: '',
-                    method: 'HEAD',
-                    slackChannel: '',
-                    slackWebhook: ''
-                }
+        var propData = Object.assign({}, {
+            displayName: '',
+            group: '',
+            protocol: 'http',
+            host: '',
+            port: 80,
+            path: '/',
+            method: 'HEAD',
+            slackChannel: '',
+            slackWebhook: '',
+        }, this.props.data)
         this.state.data = JSON.parse(JSON.stringify(propData))
         if (!this.state.data.slackChannel) this.state.data.slackChannel = ''
         if (!this.state.data.slackWebhook) this.state.data.slackWebhook = ''
