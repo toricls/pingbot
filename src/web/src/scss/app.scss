@@ -46,7 +46,7 @@ tr.target {
   cursor: pointer;
   color: $alert-error;
   &:hover {
-    text-decoration: underline;  
+    text-decoration: underline;
   }
 }
 
@@ -66,4 +66,11 @@ tr.target {
 		//Outline button hover
 		&:hover { color: $white; background-color: $alert-error; }
 	}
+}
+
+.btn:disabled {
+  background-color: $white;
+  border: 1px solid #ccc;
+  color: #ccc;
+  cursor: not-allowed;
 }
