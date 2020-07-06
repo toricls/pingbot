@@ -69,6 +69,7 @@ export default class Target extends React.Component {
         return (
             <tr className="target" onClick={this.handleItemClick.bind(this)}>
                 <td>{this.props.data.uuid.substr(0, 4)}</td>
+                <td>{this.props.data.group}</td>
                 <td>{this.props.data.displayName}</td>
                 <td>{this.toLinkText(this.props.data)}</td>
                 <td className={this.getStatusClassText()}>{this.getStatusText()}{this.getLastStatusText()}</td>

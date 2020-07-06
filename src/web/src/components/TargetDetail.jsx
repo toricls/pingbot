@@ -30,14 +30,15 @@ export default class TargetDetail extends React.Component {
         super(props)
         this.state = {}
         var propData = this.props.data
-                || { 
-                    displayName: '', 
-                    protocol: 'http', 
-                    host: '', 
-                    port: 80, 
-                    path: '/', 
+                || {
+                    displayName: '',
+                    protocol: 'http',
+                    host: '',
+                    port: 80,
+                    path: '/',
+                    group: '',
                     method: 'HEAD',
-                    slackChannel: '', 
+                    slackChannel: '',
                     slackWebhook: ''
                 }
         this.state.data = JSON.parse(JSON.stringify(propData))
@@ -45,6 +46,7 @@ export default class TargetDetail extends React.Component {
         if (!this.state.data.slackWebhook) this.state.data.slackWebhook = ''
         this.state.style = {
             uuid: styles.valid,
+            group: styles.valid,
             displayName: styles.valid,
             protocol: styles.valid,
             host: styles.valid,
@@ -139,6 +141,11 @@ export default class TargetDetail extends React.Component {
             result = (length <= 32 && length > 0)
             data.displayName = value
             break
+        case 'group':
+            length = value.trim().length
+            result = (length <= 32)
+            data.group = value
+            break
         case 'protocol':
             result = (['http', 'https'].indexOf(value) > -1)
             data.protocol = value
@@ -194,6 +201,9 @@ export default class TargetDetail extends React.Component {
         case 'displayName':
             style.displayName = result ? styles.valid : styles.invalid
             break
+        case 'group':
+            style.group = result ? styles.valid : styles.invalid
+            break
         case 'protocol':
             style.protocol = result ? styles.valid : styles.invalid
             break
@@ -248,29 +258,38 @@ export default class TargetDetail extends React.Component {
         return (
             <div style={styles.container}>
                 <form onSubmit={this.handleSubmitForm.bind(this)}>
-                    <input 
+                    <input
                         type="text"
                         ref="uuid"
                         className="form-input"
                         name="uuid"
                         placeholder="uuid (*)"
                         value={this.state.data.uuid}
-                        onChange={this.handleChange.bind(this)} 
+                        onChange={this.handleChange.bind(this)}
                         disabled={this.state.uuidReadOnly}
                         style={this.state.style.uuid} />
-                    <input 
-                        type="text" 
-                        ref="displayName" 
+                    <input
+                        type="text"
+                        ref="displayName"
                         className="form-input"
-                        name="displayName" 
+                        name="displayName"
                         placeholder="Display name [max length: 32] (*)"
-                        value={this.state.data.displayName} 
+                        value={this.state.data.displayName}
                         onChange={this.handleChange.bind(this)}
                         style={this.state.style.displayName} />
-                    <select 
-                        ref="protocol" 
-                        className="form-select" 
-                        name="protocol" 
+                    <input
+                        type="text"
+                        ref="group"
+                        className="form-input"
+                        name="group"
+                        placeholder="Group Name [max length: 32]"
+                        value={this.state.data.group}
+                        onChange={this.handleChange.bind(this)}
+                        style={this.state.style.group} />
+                    <select
+                        ref="protocol"
+                        className="form-select"
+                        name="protocol"
                         required
                         value={this.state.data.protocol}
                         onChange={this.handleChange.bind(this)}
