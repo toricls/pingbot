@@ -43,6 +43,7 @@ export default class TargetDetail extends React.Component {
         this.state.data = JSON.parse(JSON.stringify(propData))
         if (!this.state.data.slackChannel) this.state.data.slackChannel = ''
         if (!this.state.data.slackWebhook) this.state.data.slackWebhook = ''
+        if (!this.state.data.group) this.state.data.group = ''
         this.state.style = {
             uuid: styles.valid,
             group: styles.valid,
