@@ -24,7 +24,7 @@ echo 'Updating CloudFormation stack...'
 aws cloudformation update-stack \
     --stack-name $STACK_NAME \
     --region $AWS_DEFAULT_REGION \
-    --template-url https://s3-$AWS_DEFAULT_REGION.amazonaws.com/$S3_PINGBOT_RESOURCE_BUCKET/cfn/main.template \
+    --template-url https://s3.$AWS_DEFAULT_REGION.amazonaws.com/$S3_PINGBOT_RESOURCE_BUCKET/cfn/main.template \
     --parameters ParameterKey=TemplateBucketName,ParameterValue=$S3_PINGBOT_RESOURCE_BUCKET \
                  ParameterKey=DeployTimestamp,ParameterValue=$TIMESTAMP \
                  ParameterKey=WebAppPermittedIPAddress,ParameterValue=$WEBAPP_PERMITTED_IP_ADDRESS \
