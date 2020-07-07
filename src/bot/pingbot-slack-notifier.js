@@ -16,14 +16,15 @@ const buildMessage = (target, result) => {
     var resultAsString = result.passed.BOOL === true ? 'UP' : 'DOWN'
     var attachmentColor = result.passed.BOOL === true ? 'good' : 'danger'
     var text = '`' + result.code.S + ' ' + result.message.S + '` at ' + (new Date(Number(result.updatedAt.N))).toISOString() + '\n<' + fullUrl + '|Click to open ' + fullUrl + '>'
+    var prefix = target.group ? '[' + target.group + '] ' : '';
     var message = {
         channel: '#' + target.slackChannel,
         attachments: [
             {
-                fallback: target.displayName + ' is ' + resultAsString + ': ' + fullUrl,
+                fallback: prefix + target.displayName + ' is ' + resultAsString + ': ' + fullUrl,
                 fields: [
                     {
-                        title: '"' + target.displayName + '" is ' + resultAsString,
+                        title: prefix + '"' + target.displayName + '" is ' + resultAsString,
                         value: text,
                         short: false
                     }
@@ -78,7 +79,7 @@ exports.handler = (event, context, callback) => {
     botConfig = JSON.parse(require('fs').readFileSync('./config.json'))
     var target = event.target
     var result = event.result
-    
+
     var message = buildMessage(target, result)
     postMessage(message, target.slackWebhook, function(res) {
         if (res.statusCode < 400) {

@@ -12,7 +12,7 @@ export default class App extends React.Component {
     constructor(props) {
         super(props)
         // check browser tab visibility
-        var stateKey, eventKey, keys = 
+        var stateKey, eventKey, keys =
         {
             hidden: 'visibilitychange',
             webkitHidden: 'webkitvisibilitychange',
@@ -50,7 +50,7 @@ export default class App extends React.Component {
                     // auto refresh is enabled and interval time has elapsed
                     this.loadTargetsFromServer()
                 }
-            } 
+            }
         }.bind(this))
     }
     // indicate load status
@@ -95,11 +95,18 @@ export default class App extends React.Component {
         }.bind(this))
     }
     onScan(err, res, params) {
+        // Ensures that each Item will have the expected keys
+        const formatItems = (items = []) => items.map((data) => Object.assign({
+            uuid: null,
+            group: null,
+            slackChannel: null,
+            slackWebhook: null,
+        }, data))
         if (err) {
             return console.error(err)
         } else {
             this.setState({
-                data: this.state.data.concat(res.Items)
+                data: this.state.data.concat(formatItems(res.Items))
             })
             if (typeof res.LastEvaluatedKey != 'undefined') {
                 console.log('Fetching more.')

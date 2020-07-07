@@ -26,7 +26,7 @@ export default class TargetList extends React.Component {
     getContent(target) {
         return (
             <TargetDetail
-                data={target} 
+                data={target}
                 onClickClose={this.toggleDialog.bind(this)}
                 onHandleSubmit={this.handleSubmit.bind(this)}
                 onClickDelete={this.handleDelete.bind(this)}
@@ -50,7 +50,8 @@ export default class TargetList extends React.Component {
                     <thead>
                         <tr>
                             <td>uuid</td>
-                            <td>display name</td>
+                            <td>group</td>
+                            <td>name</td>
                             <td>target</td>
                             <td>latest status</td>
                         </tr>
@@ -60,7 +61,7 @@ export default class TargetList extends React.Component {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan="4" style={{fontSize:'0.7em'}}>Rendered at: <span style={{fontWeight:'bold'}}>{this.props.loadedAt}</span>, {this.props.refreshInfo}</td>
+                            <td colSpan="5" style={{fontSize:'0.7em'}}>Rendered at: <span style={{fontWeight:'bold'}}>{this.props.loadedAt}</span>, {this.props.refreshInfo}</td>
                         </tr>
                     </tfoot>
                 </table>
