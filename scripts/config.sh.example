@@ -9,5 +9,5 @@ export AWS_DEFAULT_REGION=us-east-1
 export S3_PINGBOT_RESOURCE_BUCKET=${YOUR-BUCKET-NAME}
 
 ## Your global IP address to permit access to the pingbot web app.
-## Although it's not recommended but you can specify "0.0.0.0/0" to the web app to the internet.
+## Although it's not recommended but you can specify "0.0.0.0/0" to make the web app public to the internet.
 export WEBAPP_PERMITTED_IP_ADDRESS=${YOUR.IPADDRESS.WITH.CIDR/32}
