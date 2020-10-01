@@ -1,4 +1,4 @@
-# pingbot
+# pingbot An Amazing Project
 
 A proof of concept of website monitoring/health-checking tool based on serverless architecture,  powered by AWS Lambda, Amazon DynamoDB, Amazon CloudWatch, Amazon S3 and Facebook React.
 
