@@ -2,7 +2,7 @@
 
 A proof of concept of website monitoring/health-checking tool based on serverless architecture,  powered by AWS Lambda, Amazon DynamoDB, Amazon CloudWatch, Amazon S3 and Facebook React.
 
-Under $0.1/month cost to use this tool thanks to the free tiers of AWS even if you are not a new AWS customer :tada:
+Cost saver at just $0.1/month, use this tool to unlock the benefits thanks to the free tiers of AWS even if you are not a new AWS customer :tada:
 
 ## Overview
 
